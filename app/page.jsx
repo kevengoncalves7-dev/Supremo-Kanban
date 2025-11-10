@@ -42,13 +42,26 @@ const firebaseConfig =
     appId: "",
   };
 function initFirebase() {
+  // Nunca inicializa no servidor (SSR/SSG). Só no navegador.
+  if (typeof window === 'undefined') {
+    return { app: null, auth: null, db: null, ok: false, reason: 'ssr' };
+  }
+
   try {
-    const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+    // Config injetada pelo layout (app/layout.jsx)
+    const cfg = (window && window.__FIREBASE_CONFIG__) || {};
+
+    // Só segue se houver apiKey válida (evita tentar com placeholders)
+    if (!cfg.apiKey || String(cfg.apiKey).startsWith('YOUR_')) {
+      return { app: null, auth: null, db: null, ok: false, reason: 'no-client-config' };
+    }
+
+    const app = getApps().length ? getApps()[0] : initializeApp(cfg);
     const auth = getAuth(app);
     const db = getFirestore(app);
     return { app, auth, db, ok: true };
   } catch (e) {
-    console.warn("Firebase init falhou:", e?.message || e);
+    console.warn('Firebase init falhou:', e?.message || e);
     return { app: null, auth: null, db: null, ok: false, error: e };
   }
 }
