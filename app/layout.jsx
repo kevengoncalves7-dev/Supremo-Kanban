@@ -3,7 +3,7 @@ export const metadata = {
   description: "Loja Supremo Açaí e Sorvetes - Kanban",
 };
 
-import "./globals.css";
+import '../globals.css';
 
 /**
  * RootLayout injeta as variáveis públicas do Firebase (NEXT_PUBLIC_) no window.
